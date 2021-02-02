@@ -11,8 +11,8 @@ module.exports = app => {
   
   app
     .route('/usuario/logout')
-    .get(
-      middlewareAutenticacao.bearer, 
+    .post(
+      [middlewareAutenticacao.bearer, middlewareAutenticacao.refresh], 
       usuariosControlador.logout
   );
 
@@ -22,5 +22,7 @@ module.exports = app => {
     .get(usuariosControlador.lista);
 
   app.route('/usuario/:id').delete(middlewareAutenticacao.bearer, usuariosControlador.deleta);
+
+  app.route('/usuario/atualiza_token').post(middlewareAutenticacao.refresh, usuariosControlador.login);
 };
   
