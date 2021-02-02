@@ -21,6 +21,5 @@ module.exports = {
         const tokenHash = geraTokenHash(token);
         const resultado  = await existsAsync(tokenHash);
         return resultado === 1;
-    },
-
+    }
 }
