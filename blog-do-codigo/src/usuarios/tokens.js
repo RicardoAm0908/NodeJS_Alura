@@ -14,6 +14,9 @@ function criaTokenJWT(idUsuario, [tempoQuantidade, tempoUnidade]){
 
 }
 async function verificaTokenNaBlocklist(token, nome, blocklist){
+    if(!blocklist){
+        return;
+    }
     const tokenblocklist = await blocklist.contemToken(token);
     if(tokenblocklist){
         throw new jwt.JsonWebTokenError(`${nome} inválido!`);
@@ -48,19 +51,19 @@ async function verificaTokenOpaco(token, nome, allowlist){
 
 function verificaTokenValido(id, nome) {
     if (!id) {
-        throw new InvalidArgumentError(`${nome} token inválido`);
+        throw new InvalidArgumentError(`${nome} inválido`);
     }
 }
 
 function verificaTokenEnviado(token, nome) {
     if (!token) {
-        throw new InvalidArgumentError(`${nome} token não enviado!`);
+        throw new InvalidArgumentError(`${nome} não enviado!`);
     }
 }
 
 async function invalidaTokenOpaco(token, nome, blocklist){
     if(!token){
-        throw new InvalidArgumentError(`${nome} token não enviado!`)
+        throw new InvalidArgumentError(`${nome} não enviado!`)
     }
     await blocklist.deleta(token);
 }
@@ -84,7 +87,7 @@ module.exports = {
         }
     },
     refresh: {
-        nome: 'Refresh',
+        nome: 'Refresh token',
         expiracao: [5, 'd'],
         lista: allowlistRefreshToken,
         cria(idUsuario){
@@ -96,6 +99,16 @@ module.exports = {
         invalida(token){
             return invalidaTokenOpaco(token, this.nome, this.lista);
         }
-    }
+    },
+    verificacaoEmail: {
+        nome: 'Token de Verificação de Email',
+        expiracao: [1, 'h'],
+        cria(id){
+            return criaTokenJWT(id, this.expiracao);
+        },
+        verifica(token){    
+            return  verificaTokenJWT(token, this.nome);
+        }
+    },
 }
 

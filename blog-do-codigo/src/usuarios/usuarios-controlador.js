@@ -2,6 +2,13 @@ const Usuario = require('./usuarios-modelo');
 const { InvalidArgumentError, InternalServerError } = require('../erros');
 const blocklist = require('../../redis/blocklist-access-token');
 const tokens = require('./tokens');
+const { EmailVerificacao } = require('./emails');
+
+function geraEndereco(rota, token){
+  const baseURL = process.env.BASE_URL;
+  return `${baseURL}/${rota}/${token}`;
+}
+
 
 module.exports = {
   adiciona: async (req, res) => {
@@ -10,12 +17,18 @@ module.exports = {
     try {
       const usuario = new Usuario({
         nome,
-        email
+        email,
+        emailVerificado: false
       });
 
       await usuario.adicionaSenha(senha);
 
       await usuario.adiciona();
+
+      const token = tokens.verificacaoEmail.cria(usuario.id);
+      const endereco = geraEndereco('usuario/verifica_email', token);
+      const emailVerificacao = new EmailVerificacao(usuario, endereco);
+      emailVerificacao.enviaEmail().catch(console.log);
 
       res.status(201).json();
     } catch (ex) {
@@ -62,6 +75,16 @@ module.exports = {
       res.status(200).send();
     } catch (ex) {
       res.status(500).json({ erro: ex });
+    }
+  },
+
+  verificaEmail: async(req, res) => {
+    try{
+      const usuario = req.user;
+      await usuario.verificaEmail();
+      res.status(200).json();
+    }catch (ex) {
+      res.status(500).json({ erro: ex.message });
     }
   }
 };

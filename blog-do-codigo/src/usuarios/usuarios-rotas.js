@@ -24,5 +24,7 @@ module.exports = app => {
   app.route('/usuario/:id').delete(middlewareAutenticacao.bearer, usuariosControlador.deleta);
 
   app.route('/usuario/atualiza_token').post(middlewareAutenticacao.refresh, usuariosControlador.login);
+
+  app.route('/usuario/verifica_email/:token').get(middlewareAutenticacao.verificacaoEmail, usuariosControlador.verificaEmail);
 };
   
