@@ -9,7 +9,7 @@ const {InvalidArgumentError} = require('../erros');
 
 function criaTokenJWT(idUsuario, [tempoQuantidade, tempoUnidade]){
     const payload = { id: idUsuario };
-    const token = jwt.sign(payload, process.env.CHAVE_JWT, { expiresIn: tempoQuantidade + tempoQuantidade });
+    const token = jwt.sign(payload, process.env.CHAVE_JWT, { expiresIn: tempoQuantidade + tempoUnidade });
     return token;
 
 }
